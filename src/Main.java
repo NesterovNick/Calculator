@@ -1,4 +1,6 @@
 import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,15 +13,32 @@ public class Main {
         int num;
         double total = 0;
         ArrayList<Expence> expences = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("lastreport.txt"))){
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("- ") && line.contains(": ") && line.contains(" руб.")) {
+                String[] parts = line.split(": ");
+                String category = parts[0].substring(2);
+                double amount = Double.parseDouble(parts[1].replace(" руб.", ""));
+
+                expences.add(new Expence(amount, category));
+            }
+        }
+        System.out.println("Данные загружены из lastreport.txt");
+        }
+        catch (IOException e) {
+                System.out.println("Предыдущих данных не найдено! Введите расходы заново");
+        }
         boolean count = true;
         while (count == true) {
             try {
-            System.out.println("Выберите значение");
+                System.out.println("Выберите значение");
             System.out.println("1. Добавить расход");
             System.out.println("2. Сумма расходов");
             System.out.println("3. Выход");
             System.out.println("4. Сводка по категориям: ");
             System.out.println("5. Сохранить в файл: ");
+            System.out.println ("6. Введите категорию для поиска: ");
             num = sc.nextInt();
                 if (num == 1) {
                     System.out.println("Сколько ты потратил?");
@@ -69,7 +88,7 @@ public class Main {
                     }
                 } else if (num == 4) {
                     HashMap<String, Double> stats = new HashMap<>();
-                    for (Expence exp :expences) {
+                    for (Expence exp : expences) {
                         String catgory = exp.category;
                         double sum = exp.amount;
                         if (stats.containsKey(catgory)){
@@ -105,7 +124,22 @@ public class Main {
                     }   catch (IOException e){
                         System.err.println("Произошла ошибка при записи в файл: report.txt");
                     }
-                } else {
+                } else if (num == 6) {
+                    sc.nextLine();
+                    String searchingcategory = sc.nextLine();
+                    System.out.println("Ваша категория: " + searchingcategory);
+                    boolean found = false;
+                    for (Expence exp : expences){
+                        if (searchingcategory.equalsIgnoreCase(exp.category)){
+                            System.out.println(exp.category + " " + exp.amount);
+                            found = true;
+                        }
+                    }
+                    if (!found){
+                        System.out.println("Категория не найдена!");
+                    }
+                }
+                else {
                     System.out.println("Такой цифры нет в меню.");
                 }
             } catch (Exception e) {
