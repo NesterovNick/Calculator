@@ -2,6 +2,7 @@ import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -82,21 +83,34 @@ public class Main {
                         count = false;
                     }
                 } else if (num == 4) {
+                    System.out.println("За какую дату считаем 'ГГГГ-ММ':");
+                    sc.nextLine();
+                    String datesearch = sc.nextLine();
                     HashMap<String, Double> stats = new HashMap<>();
+                    int countdate = 0;
                     for (Expence exp : expences) {
-                        String catgory = exp.category;
-                        double sum = exp.amount;
-                        if (stats.containsKey(catgory)){
-                            stats.put(catgory, stats.get(catgory) + sum);
-                        } else {
-                            stats.put(catgory, sum);
+                        String currentdate = exp.date.getYear() + "-" + String.format("%02d", exp.date.getMonthValue());
+                        if (currentdate.equals(datesearch)) {
+                            String catgory = exp.category;
+                            double sum = exp.amount;
+                            if (stats.containsKey(catgory)) {
+                                stats.put(catgory, stats.get(catgory) + sum);
+                            } else {
+                                stats.put(catgory, sum);
+                            }
+                            countdate++;
                         }
                     }
-                    System.out.println("Статистика по категориям:");
-                    for (String category : stats.keySet()){
-                        System.out.println("- " + category + ": " + stats.get(category) + " руб.");
+                        if (countdate != 0) {
+                            System.out.println("Статистика за - " + datesearch + " (" + countdate + " ) трат:");
+                            for (String category : stats.keySet()) {
+                                System.out.println("- " + category + ": " + stats.get(category) + " руб.");
+                            }
+                        } else{
+                            System.out.println("Расходов за этот месяц не найдено!");
+                        }
                     }
-                } else if (num == 5) {
+                else if (num == 5) {
                     System.out.println("Происходит сохранение в файл.");
                     try (FileWriter writer = new FileWriter("report.txt")) {
                         writer.write("Полная история расходов:\n");
